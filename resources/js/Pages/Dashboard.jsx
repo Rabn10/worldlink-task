@@ -1,7 +1,21 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 
 export default function Dashboard() {
+
+    const { data, setData, post, reset } = useForm({
+        content: '',
+    });
+
+    const submit = (e) => {
+        e.preventDefault();
+        post('/comments', {
+            onSuccess: () => {
+                reset();
+            }
+        })
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -22,13 +36,15 @@ export default function Dashboard() {
                                 As technology progressed, the previous standards that once defined AI tools and apps became outdated. Thus, AI is continuously evolving to benefit industries and software development businesses.</p>
                         </div>
 
-                        <div className="p-6 border-t">
+                        <div onSubmit={submit} method="post" className="p-6 border-t">
                             <h2 className="text-lg font-semibold mb-2">Comments</h2>
                             <form className="flex items-start space-x-2">
                                 <textarea
                                     className="flex-grow border rounded-md p-2 resize-none"
                                     rows="2"
                                     placeholder="Write your comment..."
+                                    value={data.content}
+                                    onChange={(e) => setData('content', e.target.value)}
                                 />
                                 <button
                                     type="submit"
