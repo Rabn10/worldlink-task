@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Comment;
+use Inertia\Inertia;
 class CommentController extends Controller
 {
     public function store(Request $request) {
@@ -31,4 +32,17 @@ class CommentController extends Controller
 
         return redirect()->back();
     }
+
+    public function index()
+{
+    $comments = Comment::with(['replies.replies.replies', 'user'])
+        ->whereNull('parent_id')
+        ->latest()
+        ->get();
+
+    return Inertia::render('Dashboard', [
+        'comments' => $comments,
+    ]);
+}
+
 }
