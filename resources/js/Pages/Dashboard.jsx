@@ -5,13 +5,17 @@ import { useEffect, useState } from 'react';
 export default function Dashboard({ comments = [] }) {
     const { data, setData, post, reset } = useForm({
         content: '',
+        parent_id: null
     });
+
+    const [replyTo, setReplyTo] = useState(null);
 
     const submit = (e) => {
         e.preventDefault();
         post('/comments', {
             onSuccess: () => {
                 reset(); // clears textarea
+                setReplyTo(null);
             }
         });
     };
@@ -25,6 +29,43 @@ export default function Dashboard({ comments = [] }) {
             <p className="text-sm text-gray-800">
                 <strong>{comment.user?.name || 'Anonymous'}:</strong> {comment.content}
             </p>
+            <button
+                className="text-blue-500 text-xs mt-1"
+                onClick={() => setReplyTo(comment.id)}
+            >
+                Reply
+            </button>
+            {/* Show reply form */}
+            {replyTo === comment.id && (
+                <form onSubmit={submit} className="mt-2 space-y-2">
+                    <textarea
+                        className="w-full border rounded-md p-2 resize-none"
+                        rows="2"
+                        placeholder="Write your reply..."
+                        value={data.content}
+                        onChange={(e) => {
+                            setData('content', e.target.value);
+                            setData('parent_id', comment.id); // set parent_id
+                        }}
+                    />
+                    <div className="flex gap-2">
+                        <button
+                            type="submit"
+                            className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
+                        >
+                            Reply
+                        </button>
+                        <button
+                            type="button"
+                            className="text-gray-500 text-sm"
+                            onClick={() => setReplyTo(null)}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            )}
+
             {comment.replies?.length > 0 &&
                 comment.replies.map(reply => (
                     <CommentItem key={reply.id} comment={reply} level={level + 1} />
