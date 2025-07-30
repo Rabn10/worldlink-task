@@ -22,9 +22,21 @@ export default function Dashboard() {
                                 As technology progressed, the previous standards that once defined AI tools and apps became outdated. Thus, AI is continuously evolving to benefit industries and software development businesses.</p>
                         </div>
 
-                        <div>
-                            <h2>Add Comment</h2>
-
+                        <div className="p-6 border-t">
+                            <h2 className="text-lg font-semibold mb-2">Comments</h2>
+                            <form className="flex items-start space-x-2">
+                                <textarea
+                                    className="flex-grow border rounded-md p-2 resize-none"
+                                    rows="2"
+                                    placeholder="Write your comment..."
+                                />
+                                <button
+                                    type="submit"
+                                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+                                >
+                                    Comment
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
