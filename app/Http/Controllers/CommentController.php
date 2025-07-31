@@ -36,10 +36,10 @@ class CommentController extends Controller
     public function index()
 {
     $comments = Comment::with([
-        'replies.user',        // replies' user
-        'replies.replies.user', // 2nd level replies' user
-        'replies.replies.replies.user', // 3rd level
-        'user' // top-level comment's user
+        'replies.user',
+        'replies.replies.user',
+        'replies.replies.replies.user',
+        'user'
     ])
     ->whereNull('parent_id')
     ->latest()

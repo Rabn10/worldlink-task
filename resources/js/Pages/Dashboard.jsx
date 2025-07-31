@@ -14,65 +14,81 @@ export default function Dashboard({ comments = [] }) {
         e.preventDefault();
         post('/comments', {
             onSuccess: () => {
-                reset(); // clears textarea
+                reset();
                 setReplyTo(null);
             }
         });
     };
 
-    // Recursive comment component
-    const CommentItem = ({ comment, level = 0 }) => (
-        <div
-            style={{ marginLeft: level * 20 + 'px' }}
-            className="border-l-2 border-gray-200 pl-4 mt-2"
-        >
-            <p className="text-sm text-gray-800">
-                <strong>{comment.user?.name || 'Anonymous'}:</strong> {comment.content}
-            </p>
-            <button
-                className="text-blue-500 text-xs mt-1"
-                onClick={() => setReplyTo(comment.id)}
-            >
-                Reply
-            </button>
-            {/* Show reply form */}
-            {replyTo === comment.id && (
-                <form onSubmit={submit} className="mt-2 space-y-2">
-                    <textarea
-                        className="w-full border rounded-md p-2 resize-none"
-                        rows="2"
-                        placeholder="Write your reply..."
-                        value={data.content}
-                        onChange={(e) => {
-                            setData('content', e.target.value);
-                            setData('parent_id', comment.id); // set parent_id
-                        }}
-                    />
-                    <div className="flex gap-2">
-                        <button
-                            type="submit"
-                            className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
-                        >
-                            Reply
-                        </button>
-                        <button
-                            type="button"
-                            className="text-gray-500 text-sm"
-                            onClick={() => setReplyTo(null)}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </form>
-            )}
+    const CommentItem = ({ comment, level = 0 }) => {
+        const replyForm = useForm({
+            content: '',
+            parent_id: comment.id
+        });
 
-            {comment.replies?.length > 0 &&
-                comment.replies.map(reply => (
-                    <CommentItem key={reply.id} comment={reply} level={level + 1} />
-                ))
-            }
-        </div>
-    );
+        const handleReplySubmit = (e) => {
+            e.preventDefault();
+            replyForm.setData('parent_id', comment.id);
+            replyForm.post('/comments', {
+                onSuccess: () => {
+                    replyForm.reset();
+                    setReplyTo(null);
+                }
+            });
+        };
+
+        return (
+            <div
+                style={{ marginLeft: level * 20 + 'px' }}
+                className="border-l-2 border-gray-200 pl-4 mt-2"
+            >
+                <p className="text-sm text-gray-800">
+                    <strong>{comment.user?.name || 'Anonymous'}:</strong> {comment.content}
+                </p>
+                <button
+                    className="text-blue-500 text-xs mt-1"
+                    onClick={() => setReplyTo(comment.id)}
+                >
+                    Reply
+                </button>
+
+                {replyTo === comment.id && (
+                    <form onSubmit={handleReplySubmit} className="mt-2 space-y-2">
+                        <textarea
+                            className="w-full border rounded-md p-2 resize-none"
+                            rows="2"
+                            placeholder="Write your reply..."
+                            value={replyForm.data.content}
+                            onChange={(e) => replyForm.setData('content', e.target.value)}
+                        />
+                        <div className="flex gap-2">
+                            <button
+                                type="submit"
+                                className="bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
+                            >
+                                Reply
+                            </button>
+                            <button
+                                type="button"
+                                className="text-gray-500 text-sm"
+                                onClick={() => setReplyTo(null)}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                )}
+
+                {comment.replies?.length > 0 &&
+                    comment.replies.map(reply => (
+                        <CommentItem key={reply.id} comment={reply} level={level + 1} />
+                    ))
+                }
+            </div>
+        );
+    };
+
+
 
     return (
         <AuthenticatedLayout
@@ -100,7 +116,6 @@ export default function Dashboard({ comments = [] }) {
                             </p>
                         </div>
 
-                        {/* Comment Form */}
                         <div className="p-6 border-t">
                             <h2 className="text-lg font-semibold mb-2">Comments</h2>
                             <form onSubmit={submit} className="flex items-start space-x-2">
@@ -119,7 +134,6 @@ export default function Dashboard({ comments = [] }) {
                                 </button>
                             </form>
 
-                            {/* Display Comments */}
                             <div className="mt-6">
                                 {comments.length === 0 ? (
                                     <p className="text-gray-500">No comments yet.</p>
