@@ -37,6 +37,21 @@ jobs:
       - name: Copy .env file
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
+      - name: Set environment variables
+        run: |
+          echo "APP_URL=http://localhost" >> .env
+          echo "DB_CONNECTION=pgsql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=5432" >> .env
+          echo "DB_DATABASE=wroldlink" >> .env
+          echo "DB_USERNAME=postgres" >> .env
+          echo "DB_PASSWORD=admin123" >> .env
+          echo "MAIL_MAILER=log" >> .env
+          echo "SESSION_DRIVER=file" >> .env
+          echo "QUEUE_CONNECTION=sync" >> .env
+
+
+
       - name: Generate app key
         run: php artisan key:generate
 
